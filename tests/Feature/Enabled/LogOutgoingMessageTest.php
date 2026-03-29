@@ -1,73 +1,95 @@
 <?php
 
+namespace Empinet\OutboundMailLog\Tests\Feature\Enabled;
+
 use Empinet\OutboundMailLog\Enums\OutboundMailStatus;
 use Empinet\OutboundMailLog\Models\OutboundMailLog;
 use Empinet\OutboundMailLog\Tests\Support\TestMailable;
 use Empinet\OutboundMailLog\Tests\Support\TestNotification;
+use Empinet\OutboundMailLog\Tests\TestCase;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
 
-beforeEach(function (): void {
-    $migration = include __DIR__.'/../../../database/migrations/create_outbound_mail_logs_table.php.stub';
-    $migration->up();
-});
+class LogOutgoingMessageTest extends TestCase
+{
+    protected function setUp(): void
+    {
+        parent::setUp();
 
-afterEach(function (): void {
-    OutboundMailLog::query()->delete();
-});
+        $migration = include __DIR__.'/../../../database/migrations/create_outbound_mail_logs_table.php.stub';
+        $migration->up();
+    }
 
-test('logs mailables', function (): void {
-    $this->assertDatabaseCount('outbound_mail_logs', 0);
+    protected function tearDown(): void
+    {
+        OutboundMailLog::query()->delete();
 
-    Mail::to('recipient@example.com')->send(new TestMailable);
+        parent::tearDown();
+    }
 
-    expect($entry = OutboundMailLog::first())->toBeInstanceOf(OutboundMailLog::class)
-        ->and($entry->to)->toContain('recipient@example.com')
-        ->and($entry->subject)->toBe('Test')
-        ->and($entry->from)->toContain('sender@example.com')
-        ->and($entry->bcc)->toContain('bcc@example.com')
-        ->and($entry->cc)->toContain('cc@example.com')
-        ->and($entry->body)->toContain('<h1>Test</h1>')
-        ->and($entry->attachments)->toContain('attachment.txt')
-        ->and($entry->mailer)->toBe(config('mail.default'))
-        ->and($entry->status)->toBe(OutboundMailStatus::SENT);
-});
+    public function test_logs_mailables(): void
+    {
+        $this->assertDatabaseCount('outbound_mail_logs', 0);
 
-test('logs notifications', function (): void {
-    Notification::route('mail', 'recipient@example.com')->notify(new TestNotification);
+        Mail::to('recipient@example.com')->send(new TestMailable);
 
-    expect($entry = OutboundMailLog::first())->toBeInstanceOf(OutboundMailLog::class)
-        ->and($entry->to)->toContain('recipient@example.com')
-        ->and($entry->mailable)->toBe(TestNotification::class);
-});
+        $entry = OutboundMailLog::first();
+        $this->assertInstanceOf(OutboundMailLog::class, $entry);
+        $this->assertContains('recipient@example.com', $entry->to);
+        $this->assertSame('Test', $entry->subject);
+        $this->assertContains('sender@example.com', $entry->from);
+        $this->assertContains('bcc@example.com', $entry->bcc);
+        $this->assertContains('cc@example.com', $entry->cc);
+        $this->assertStringContainsString('<h1>Test</h1>', (string) $entry->body);
+        $this->assertContains('attachment.txt', $entry->attachments);
+        $this->assertSame(config('mail.default'), $entry->mailer);
+        $this->assertSame(OutboundMailStatus::SENT, $entry->status);
+    }
 
-test('logs emails sent via closure', function (): void {
-    Mail::raw('This is the raw email body.', function ($message): void {
-        $message->to('recipient@example.com')
-            ->from('sender@example.com')
-            ->subject('sending from closure');
-    });
+    public function test_logs_notifications(): void
+    {
+        Notification::route('mail', 'recipient@example.com')->notify(new TestNotification);
 
-    expect($entry = OutboundMailLog::first())->toBeInstanceOf(OutboundMailLog::class)
-        ->and($entry->to)->toContain('recipient@example.com')
-        ->and($entry->subject)->toBe('sending from closure')
-        ->and($entry->from)->toContain('sender@example.com');
-});
+        $entry = OutboundMailLog::first();
+        $this->assertInstanceOf(OutboundMailLog::class, $entry);
+        $this->assertContains('recipient@example.com', $entry->to);
+        $this->assertSame(TestNotification::class, $entry->mailable);
+    }
 
-test('does not store body when disabled', function (): void {
-    config(['outbound-mail-log.log_body' => false]);
+    public function test_logs_emails_sent_via_closure(): void
+    {
+        Mail::raw('This is the raw email body.', function ($message): void {
+            $message->to('recipient@example.com')
+                ->from('sender@example.com')
+                ->subject('sending from closure');
+        });
 
-    Mail::to('recipient@example.com')->send(new TestMailable);
+        $entry = OutboundMailLog::first();
+        $this->assertInstanceOf(OutboundMailLog::class, $entry);
+        $this->assertContains('recipient@example.com', $entry->to);
+        $this->assertSame('sending from closure', $entry->subject);
+        $this->assertContains('sender@example.com', $entry->from);
+    }
 
-    expect($entry = OutboundMailLog::first())->toBeInstanceOf(OutboundMailLog::class)
-        ->and($entry->body)->toBeNull();
-});
+    public function test_does_not_store_body_when_disabled(): void
+    {
+        config(['outbound-mail-log.log_body' => false]);
 
-test('does not store headers when disabled', function (): void {
-    config(['outbound-mail-log.log_headers' => false]);
+        Mail::to('recipient@example.com')->send(new TestMailable);
 
-    Mail::to('recipient@example.com')->send(new TestMailable);
+        $entry = OutboundMailLog::first();
+        $this->assertInstanceOf(OutboundMailLog::class, $entry);
+        $this->assertNull($entry->body);
+    }
 
-    expect($entry = OutboundMailLog::first())->toBeInstanceOf(OutboundMailLog::class)
-        ->and($entry->headers)->toBeNull();
-});
+    public function test_does_not_store_headers_when_disabled(): void
+    {
+        config(['outbound-mail-log.log_headers' => false]);
+
+        Mail::to('recipient@example.com')->send(new TestMailable);
+
+        $entry = OutboundMailLog::first();
+        $this->assertInstanceOf(OutboundMailLog::class, $entry);
+        $this->assertNull($entry->headers);
+    }
+}

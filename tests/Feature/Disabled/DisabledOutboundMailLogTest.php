@@ -1,22 +1,35 @@
 <?php
 
+namespace Empinet\OutboundMailLog\Tests\Feature\Disabled;
+
 use Empinet\OutboundMailLog\Models\OutboundMailLog;
+use Empinet\OutboundMailLog\Tests\DisabledOutboundMailLogTestCase;
 use Empinet\OutboundMailLog\Tests\Support\TestMailable;
 use Illuminate\Support\Facades\Mail;
 
-beforeEach(function (): void {
-    $migration = include __DIR__.'/../../../database/migrations/create_outbound_mail_logs_table.php.stub';
-    $migration->up();
-});
+class DisabledOutboundMailLogTest extends DisabledOutboundMailLogTestCase
+{
+    protected function setUp(): void
+    {
+        parent::setUp();
 
-afterEach(function (): void {
-    OutboundMailLog::query()->delete();
-});
+        $migration = include __DIR__.'/../../../database/migrations/create_outbound_mail_logs_table.php.stub';
+        $migration->up();
+    }
 
-test('does not log emails when disabled', function (): void {
-    $this->assertDatabaseCount('outbound_mail_logs', 0);
+    protected function tearDown(): void
+    {
+        OutboundMailLog::query()->delete();
 
-    Mail::to('recipient@example.com')->send(new TestMailable);
+        parent::tearDown();
+    }
 
-    $this->assertDatabaseCount('outbound_mail_logs', 0);
-});
+    public function test_does_not_log_emails_when_disabled(): void
+    {
+        $this->assertDatabaseCount('outbound_mail_logs', 0);
+
+        Mail::to('recipient@example.com')->send(new TestMailable);
+
+        $this->assertDatabaseCount('outbound_mail_logs', 0);
+    }
+}
