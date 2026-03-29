@@ -18,19 +18,16 @@ class OutboundMailLog extends Model
 
     protected $guarded = ['id'];
 
-    protected function casts(): array
-    {
-        return [
-            'from' => 'array',
-            'to' => 'array',
-            'cc' => 'array',
-            'bcc' => 'array',
-            'headers' => 'array',
-            'attachments' => 'array',
-            'status' => OutboundMailStatus::class,
-            'sent_at' => 'datetime',
-        ];
-    }
+    protected $casts = [
+        'from' => 'array',
+        'to' => 'array',
+        'cc' => 'array',
+        'bcc' => 'array',
+        'headers' => 'array',
+        'attachments' => 'array',
+        'status' => OutboundMailStatus::class,
+        'sent_at' => 'datetime',
+    ];
 
     public function scopeOlderThanDays($query, int $days)
     {
