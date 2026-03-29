@@ -76,7 +76,8 @@ composer test
 
 - Releases are tag-based.
 - Use the GitHub Actions `release` workflow and provide a version like `0.1.0`.
-- The workflow creates a `v0.1.0` tag, creates a GitHub release, and can notify Packagist if `PACKAGIST_UPDATE_TOKEN` is configured in repository secrets.
+- The workflow creates a `v0.1.0` tag and creates a GitHub release.
+- Packagist updates are handled via Packagist auto-update integration.
 
 If Composer shows `could not detect the root package version` in local development, that is normal before your first release tag. It does not affect package behavior.
 

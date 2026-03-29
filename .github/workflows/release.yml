@@ -47,12 +47,3 @@ jobs:
         with:
           tag_name: v${{ github.event.inputs.version }}
           generate_release_notes: true
-
-      - name: Notify Packagist
-        if: ${{ secrets.PACKAGIST_UPDATE_TOKEN != '' }}
-        env:
-          PACKAGIST_UPDATE_TOKEN: ${{ secrets.PACKAGIST_UPDATE_TOKEN }}
-        run: |
-          curl -XPOST "https://packagist.org/api/update-package?username=empinet&apiToken=${PACKAGIST_UPDATE_TOKEN}" \
-            -H "Content-Type: application/json" \
-            -d '{"repository":{"url":"https://github.com/empinet/laravel-outbound-mail-log"}}'
