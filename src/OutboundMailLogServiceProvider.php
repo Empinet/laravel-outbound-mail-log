@@ -24,8 +24,16 @@ class OutboundMailLogServiceProvider extends ServiceProvider
             ], 'outbound-mail-log-config');
 
             $this->publishes([
+                __DIR__.'/../config/outbound-mail-log.php' => config_path('outbound-mail-log.php'),
+            ], 'config');
+
+            $this->publishes([
                 __DIR__.'/../database/migrations/create_outbound_mail_logs_table.php.stub' => database_path('migrations/'.$this->migrationFileName('create_outbound_mail_logs_table.php')),
             ], 'outbound-mail-log-migrations');
+
+            $this->publishes([
+                __DIR__.'/../database/migrations/create_outbound_mail_logs_table.php.stub' => database_path('migrations/'.$this->migrationFileName('create_outbound_mail_logs_table.php')),
+            ], 'migrations');
 
             $this->commands([
                 CleanOutboundMailLogs::class,
