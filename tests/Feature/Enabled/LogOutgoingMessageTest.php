@@ -7,8 +7,6 @@ use Empinet\OutboundMailLog\Tests\Support\TestNotification;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
 
-use function Pest\Laravel\assertDatabaseEmpty;
-
 beforeEach(function (): void {
     $migration = include __DIR__.'/../../../database/migrations/create_outbound_mail_logs_table.php.stub';
     $migration->up();
@@ -19,7 +17,7 @@ afterEach(function (): void {
 });
 
 test('logs mailables', function (): void {
-    assertDatabaseEmpty('outbound_mail_logs');
+    $this->assertDatabaseCount('outbound_mail_logs', 0);
 
     Mail::to('recipient@example.com')->send(new TestMailable);
 
