@@ -71,6 +71,24 @@ class LogOutgoingMessageTest extends TestCase
         $this->assertContains('sender@example.com', $entry->from);
     }
 
+    public function test_does_not_log_excluded_mailable(): void
+    {
+        config(['outbound-mail-log.exclude_classes' => [TestMailable::class]]);
+
+        Mail::to('recipient@example.com')->send(new TestMailable);
+
+        $this->assertDatabaseCount('outbound_mail_logs', 0);
+    }
+
+    public function test_does_not_log_excluded_notification(): void
+    {
+        config(['outbound-mail-log.exclude_classes' => [TestNotification::class]]);
+
+        Notification::route('mail', 'recipient@example.com')->notify(new TestNotification);
+
+        $this->assertDatabaseCount('outbound_mail_logs', 0);
+    }
+
     public function test_does_not_store_body_when_disabled(): void
     {
         config(['outbound-mail-log.log_body' => false]);

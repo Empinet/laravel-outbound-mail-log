@@ -12,6 +12,12 @@ class LogOutgoingMessage
 {
     public function handleSending(MessageSending $event): void
     {
+        $mailable = $this->getMailable($event);
+
+        if ($this->shouldSkipLogging($mailable)) {
+            return;
+        }
+
         $event->message
             ->getHeaders()
             ->addHeader(OutboundMailLog::IDENTIFIER_HEADER_NAME, $id = $event->message->generateMessageId());
@@ -29,7 +35,7 @@ class LogOutgoingMessage
             'bcc' => $this->parseAddress($event->message->getBcc()),
             'attachments' => $attachments,
             'status' => OutboundMailStatus::SENDING,
-            'mailable' => $this->getMailable($event),
+            'mailable' => $mailable,
             'mailer' => $event->data['mailer'] ?? config('mail.default'),
         ];
 
@@ -86,5 +92,20 @@ class LogOutgoingMessage
         return collect($addresses)
             ->map(fn (Address $address) => $address->getAddress())
             ->toArray();
+    }
+
+    private function shouldSkipLogging(?string $class): bool
+    {
+        if ($class === null) {
+            return false;
+        }
+
+        $excludedClasses = config('outbound-mail-log.exclude_classes', []);
+
+        if (! is_array($excludedClasses)) {
+            return false;
+        }
+
+        return in_array($class, $excludedClasses, true);
     }
 }

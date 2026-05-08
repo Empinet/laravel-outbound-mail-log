@@ -73,8 +73,22 @@ return [
     'cleanup_records_after' => env('OUTBOUND_MAIL_LOG_CLEANUP_RECORDS_AFTER', false),
     'log_headers' => env('OUTBOUND_MAIL_LOG_LOG_HEADERS', true),
     'log_body' => env('OUTBOUND_MAIL_LOG_LOG_BODY', true),
+    'exclude_classes' => [],
 ];
 ```
+
+### Excluding specific mailables or notifications
+
+Use `exclude_classes` to skip logging for specific classes.
+
+```php
+'exclude_classes' => [
+    App\Mail\PasswordResetMail::class,
+    App\Notifications\SensitiveNotification::class,
+],
+```
+
+Class matching is exact (fully qualified class name).
 
 Recommended `.env` values for local/testing:
 
