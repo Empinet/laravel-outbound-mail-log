@@ -51,6 +51,8 @@ return [
     |
     | Exact fully-qualified class names for mailables or notifications that
     | should be excluded from logging.
+    | Laravel 10 note: some legacy build()-style mailables may not expose
+    | class metadata at send time, so class-based exclusion may not apply.
     |
     */
     'exclude_classes' => [],

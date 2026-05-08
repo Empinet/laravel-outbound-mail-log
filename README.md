@@ -90,6 +90,10 @@ Use `exclude_classes` to skip logging for specific classes.
 
 Class matching is exact (fully qualified class name).
 
+Laravel 10 limitation: some legacy `build()` mailables do not expose mailable
+class metadata during `MessageSending`, so class-based exclusion may not apply
+for those emails.
+
 Recommended `.env` values for local/testing:
 
 ```dotenv

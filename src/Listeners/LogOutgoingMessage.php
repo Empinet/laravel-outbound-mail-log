@@ -72,6 +72,14 @@ class LogOutgoingMessage
 
     private function getMailable(MessageSending $event): ?string
     {
+        if (isset($event->data['mailable'])) {
+            return $this->normalizeClassName($event->data['mailable']);
+        }
+
+        if (isset($event->data['notification'])) {
+            return $this->normalizeClassName($event->data['notification']);
+        }
+
         if (isset($event->data['__laravel_mailable'])) {
             return $this->normalizeClassName($event->data['__laravel_mailable']);
         }
