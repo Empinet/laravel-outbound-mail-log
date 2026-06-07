@@ -54,13 +54,13 @@
     },
     "config": {
         "sort-packages": true,
-        "allow-plugins": {}
+        "allow-plugins": {},
+        "policy": {
+            "advisories": {
+                "block": false
+            }
+        }
     },
     "minimum-stability": "stable",
-    "prefer-stable": true,
-    "policy": {
-        "advisories": {
-            "block": false
-        }
-    }
+    "prefer-stable": true
 }

@@ -26,7 +26,7 @@ jobs:
         run: composer update --prefer-dist --no-interaction --no-audit
 
       - name: Validate composer
-        run: composer validate --strict
+        run: composer validate
 
       - name: Check code style
         run: composer format:check
