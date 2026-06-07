@@ -7,7 +7,6 @@ on:
 
 env:
   COMPOSER_ROOT_VERSION: dev-master
-  COMPOSER__POLICY_ADVISORIES_BLOCK: false
 
 jobs:
   tests:
@@ -46,6 +45,8 @@ jobs:
 
       - name: Install dependencies
         run: |
+          composer config --no-interaction audit.enabled false
+          composer config --no-interaction policy.advisories.block false
           composer require --dev "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
           composer update --prefer-dist --no-interaction --with-all-dependencies --no-audit
 
