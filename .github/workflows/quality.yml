@@ -23,10 +23,7 @@ jobs:
           coverage: none
 
       - name: Install dependencies
-        run: |
-          composer config --no-interaction audit.enabled false
-          composer config --no-interaction policy.advisories.block false
-          composer update --prefer-dist --no-interaction --no-audit
+        run: composer update --prefer-dist --no-interaction --no-audit
 
       - name: Validate composer
         run: composer validate --strict

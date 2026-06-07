@@ -45,7 +45,6 @@ jobs:
 
       - name: Install dependencies
         run: |
-          composer config --no-interaction policy.advisories.block false 2>/dev/null || true
           composer require --dev "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
           composer update --prefer-dist --no-interaction --with-all-dependencies --no-audit
 
