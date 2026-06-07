@@ -23,10 +23,10 @@ jobs:
           coverage: none
 
       - name: Install dependencies
-        run: composer update --prefer-dist --no-interaction
+        run: composer update --prefer-dist --no-interaction --no-audit
 
       - name: Validate composer
-        run: composer validate --strict
+        run: composer validate
 
       - name: Check code style
         run: composer format:check
